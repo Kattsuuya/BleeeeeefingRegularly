@@ -52,6 +52,21 @@ def title_contains_desired_date(child: PageBlock, target_date: datetime.date) ->
     return False
 
 
+def to_pretty(content: list) -> list:
+    """
+    Slack投稿用に文字列を加工する
+    """
+    ret = []
+    for line in content:
+        if line in ["Done", "TODO", "Problems"]:
+            # 見出し語はアスタリスクで囲う（Slackのボールド体はアスタリスク1つ）
+            ret.append(f"*{line}*")
+        else:
+            # それ以外はリストの要素とする
+            ret.append(f"• {line}")
+    return ret
+
+
 def fetch_page_content_by_date(date: datetime.date) -> str:
     """
     引数で指定した日付のBleeeeeefingページの内容を取得する
@@ -83,10 +98,10 @@ def fetch_page_content_by_date(date: datetime.date) -> str:
         "operator": "and",
     }
     today_report = this_week_reports.collection.query(filter=filter_params)[0]
-    # TODO: 子クラスごとに文字列を整形する
-    # SubheaderBlock → "## " + title
-    # デザインパターンを使えばきれいな実装ができそう
+    # 本文を抜き出して
     content = [child.title for child in today_report.children]
+    # 文字列を加工する
+    content = to_pretty(content)
     return content
 
 
