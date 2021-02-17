@@ -58,12 +58,15 @@ def to_pretty(content: list) -> list:
     """
     ret = []
     for line in content:
-        if line in ["Done", "TODO", "Problems"]:
+        if line == "Done":
             # 見出し語はアスタリスクで囲う（Slackのボールド体はアスタリスク1つ）
             ret.append(f"*{line}*")
+        elif line in ["TODO", "Problems"]:
+            # 同様に（2つ目以降の見出し語の前には改行を入れる）
+            ret.append(f"\n*{line}*")
         else:
             # それ以外はリストの要素とする
-            ret.append(f"• {line}")
+            ret.append(f"・{line}")
     return ret
 
 
