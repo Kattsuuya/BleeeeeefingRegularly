@@ -13,6 +13,7 @@ dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
 load_dotenv(dotenv_path)
 SLACK_TOKEN = os.environ.get("OAuth_Access_Token")
 NOTION_TOKEN = os.environ.get("token_v2")
+TOP_PAGE_URL = os.environ.get("top_page")
 
 # 各種サービスに接続するインスタンス
 slack_client = WebClient(token=SLACK_TOKEN)
@@ -23,9 +24,7 @@ channel = "#bleeeeeefing"
 today = datetime.date.today()
 
 # Bleeeeeefingのページを管理しているトップページ
-top_page = notion_client.get_block(
-    "https://www.notion.so/Bleeeeeefing-7256a4f4a2aa4230a5713b6c4d752b70"
-)
+top_page = notion_client.get_block(TOP_PAGE_URL)
 
 
 def str_to_date(date: str) -> datetime.date:
