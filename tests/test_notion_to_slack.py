@@ -10,10 +10,10 @@ def test_pretty():
     content = ["Done", "item1", "TODO", "item2", "item3", "Problems", "-"]
     assert to_pretty(content) == [
         "*Done*",
-        "• item1",
-        "*TODO*",
-        "• item2",
-        "• item3",
-        "*Problems*",
-        "• -",
+        "・item1",
+        "\n*TODO*",
+        "・item2",
+        "・item3",
+        "\n*Problems*",
+        "・-",
     ]
