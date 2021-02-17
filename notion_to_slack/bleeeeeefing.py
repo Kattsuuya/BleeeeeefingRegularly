@@ -18,10 +18,7 @@ NOTION_TOKEN = os.environ.get("token_v2")
 slack_client = WebClient(token=SLACK_TOKEN)
 notion_client = NotionClient(token_v2=NOTION_TOKEN)
 
-# FIXME: Bleeeeeefingチャンネルに変える
-# 今は自分宛にしている
-# channel = "#bleeeeeefing"
-channel = "U01KZU17SKH"
+channel = "#bleeeeeefing"
 
 today = datetime.date.today()
 
