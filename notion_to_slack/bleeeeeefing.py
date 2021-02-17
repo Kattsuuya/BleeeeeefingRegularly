@@ -3,7 +3,7 @@ import os
 
 from dotenv import load_dotenv
 from icecream import ic
-from notion.block import PageBlock
+from notion.block import CollectionViewBlock, PageBlock, TextBlock
 from notion.client import NotionClient
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
@@ -58,10 +58,12 @@ def to_pretty(content: list) -> list:
     """
     ret = []
     for line in content:
+        # FIXME: Blockのクラスによって条件分岐する
+        # SubheaderBlockとかBulletedListとか
         if line == "Done":
             # 見出し語はアスタリスクで囲う（Slackのボールド体はアスタリスク1つ）
             ret.append(f"*{line}*")
-        elif line in ["TODO", "Problems"]:
+        elif line in ["TODO", "Doing", "Problems"]:
             # 同様に（2つ目以降の見出し語の前には改行を入れる）
             ret.append(f"\n*{line}*")
         else:
@@ -70,7 +72,7 @@ def to_pretty(content: list) -> list:
     return ret
 
 
-def fetch_page_content_by_date(date: datetime.date) -> str:
+def fetch_page_content_by_date(date: datetime.date) -> list:
     """
     引数で指定した日付のBleeeeeefingページの内容を取得する
     """
@@ -108,6 +110,29 @@ def fetch_page_content_by_date(date: datetime.date) -> str:
     return content
 
 
+def fetch_weekly_summary_by_date(date: datetime.date) -> list:
+    """
+    引数で指定した日付を含んだ週のBleeeeeefingの内容を取得する
+    """
+    # 今週のサブページを取得
+    this_week = [
+        child for child in top_page.children if title_contains_desired_date(child, date)
+    ][0]
+    # サマリーが書いてる行だけを抽出
+    content = [
+        child.title
+        for child in this_week.children
+        if type(child) not in [TextBlock, CollectionViewBlock]
+    ]
+    # 先頭の"Summary"という行を削除
+    content = [line for line in content if line != "Summary"]
+    # 文字列を加工する
+    content = to_pretty(content)
+    # 先頭に今週の日付を挿入
+    content.insert(0, this_week.title)
+    return content
+
+
 def post_to_slack(content: str) -> None:
     """
     Slackのbleeeeeefingチャンネルに投稿する
@@ -140,7 +165,11 @@ def weekly_bleeeeeefing() -> None:
     """
     週次報告
     """
-    print("Weekly Bleeeeeefing (not implemented)")
+    # 今週のBleeeeeefing内容
+    contents = fetch_weekly_summary_by_date(today)
+    # Slackに投稿
+    content = "\n".join(contents)
+    post_to_slack(content)
 
 
 if __name__ == "__main__":
