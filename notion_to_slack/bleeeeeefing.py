@@ -165,8 +165,10 @@ def weekly_bleeeeeefing() -> None:
     """
     週次報告
     """
+    # 1日前までの1週間の報告なので、昨日の日付を指定
+    yesterday = today - datetime.timedelta(days=1)
     # 今週のBleeeeeefing内容
-    contents = fetch_weekly_summary_by_date(today)
+    contents = fetch_weekly_summary_by_date(yesterday)
     # Slackに投稿
     content = "\n".join(contents)
     post_to_slack(content)
