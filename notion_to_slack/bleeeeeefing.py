@@ -9,7 +9,7 @@ from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
 # .envファイルを読み込み、環境変数として扱う
-dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
 load_dotenv(dotenv_path)
 SLACK_TOKEN = os.environ.get("OAuth_Access_Token")
 NOTION_TOKEN = os.environ.get("token_v2")
