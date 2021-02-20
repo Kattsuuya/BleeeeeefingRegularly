@@ -269,8 +269,7 @@ def make_template() -> None:
     """
     テンプレートを作成する
     """
-    begin_date = datetime.date(2021, 1, 1)
-    make_weekly_from_template(begin_date, "Template")
+    make_weekly_from_template(today, "Template")
 
 
 if __name__ == "__main__":
