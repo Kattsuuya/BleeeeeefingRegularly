@@ -3,7 +3,14 @@ import os
 
 from dotenv import load_dotenv
 from icecream import ic
-from notion.block import CollectionViewBlock, PageBlock, TextBlock
+from notion.block import (
+    BulletedListBlock,
+    CollectionViewBlock,
+    PageBlock,
+    SubheaderBlock,
+    SubsubheaderBlock,
+    TextBlock,
+)
 from notion.client import NotionClient
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
@@ -118,7 +125,7 @@ def fetch_weekly_summary_by_date(date: datetime.date) -> list:
     this_week = [
         child for child in top_page.children if title_contains_desired_date(child, date)
     ][0]
-    # サマリーが書いてる行だけを抽出
+    # サマリーが書いてある行だけを抽出
     content = [
         child.title
         for child in this_week.children
@@ -172,6 +179,96 @@ def weekly_bleeeeeefing() -> None:
     # Slackに投稿
     content = "\n".join(contents)
     post_to_slack(content)
+
+
+def _make_content(page, layout) -> None:
+    """
+    構成をもとに内容を追加
+    """
+    for (class_, title) in layout:
+        # 行を足していく
+        page.children.add_new(class_, title=title)
+
+
+def _make_summary_template(page) -> None:
+    """
+    週次報告用のテンプレートを作成する
+    """
+    # 週次報告のテンプレートの構成
+    summary_layout = [
+        (SubheaderBlock, "Summary"),
+        (SubsubheaderBlock, "Done"),
+        (BulletedListBlock, "-"),
+        (SubsubheaderBlock, "Doing"),
+        (BulletedListBlock, "-"),
+        (SubsubheaderBlock, "TODO"),
+        (BulletedListBlock, "-"),
+        (SubsubheaderBlock, "Problems"),
+        (BulletedListBlock, "-"),
+        (TextBlock, ""),
+    ]
+    # 構成をもとに内容を追加
+    _make_content(page, summary_layout)
+
+
+def _make_daily_template(page) -> None:
+    """
+    日次報告用のテンプレートを作成する
+    """
+    # 日次報告のテンプレートの構成
+    daily_layout = [
+        (SubsubheaderBlock, "Done"),
+        (BulletedListBlock, "-"),
+        (SubsubheaderBlock, "TODO"),
+        (BulletedListBlock, "-"),
+        (SubsubheaderBlock, "Problems"),
+        (BulletedListBlock, "-"),
+    ]
+    # 構成をもとに内容を追加
+    _make_content(page, daily_layout)
+
+
+def make_weekly_from_template(begin_date: datetime.date, title: str = None) -> None:
+    """
+    1週間分のテンプレートを作成する
+    """
+    # begin_dateが1月1日なら、end_dateは1月7日
+    end_date = begin_date + datetime.timedelta(days=6)
+    # "20210101〜20210107"
+    week_title = f'{begin_date.strftime("%Y%m%d")}〜{end_date.strftime("%Y%m%d")}'
+    # 空ページを作成
+    template_page = top_page.children.add_new(
+        PageBlock, title=title if title is not None else week_title
+    )
+    # 週次報告のテンプレートを作成
+    _make_summary_template(template_page)
+    # コレクションブロックを作成
+    cvb = template_page.children.add_new(CollectionViewBlock)
+    # コレクションブロックにコレクション本体をアタッチ
+    cvb.collection = notion_client.get_collection(
+        # テンプレートのプロパティを予め決めたいときは[ここ](https://github.com/jamalex/notion-py/blob/master/notion/smoke_test.py#L240)を参考にする
+        notion_client.create_record(
+            "collection",
+            parent=cvb,
+            schema={"title": {"name": "Name", "type": "title"}},
+        )
+    )
+    cvb.title = week_title
+    # ビューを追加
+    cvb.views.add_new(view_type="list")
+    for i in range(7):
+        # 日次報告のテンプレートを作成
+        row = cvb.collection.add_row()
+        row.name = (begin_date + datetime.timedelta(days=i)).strftime("%Y%m%d")
+        _make_daily_template(row)
+
+
+def make_template() -> None:
+    """
+    テンプレートを作成する
+    """
+    begin_date = datetime.date(2021, 1, 1)
+    make_weekly_from_template(begin_date, "Template")
 
 
 if __name__ == "__main__":

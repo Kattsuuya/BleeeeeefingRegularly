@@ -15,11 +15,18 @@ pytest = "^5.2"
 icecream = "^2.1.0"
 black = "^20.8b1"
 flake8 = "^3.8.4"
+isort = "^5.7.0"
 
 [tool.poetry.scripts]
 daily = "notion_to_slack:daily_bleeeeeefing"
 weekly = "notion_to_slack:weekly_bleeeeeefing"
+template = "notion_to_slack:make_template"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+include_trailing_comma = true
+line_length = 99
+multi_line_output = 3
