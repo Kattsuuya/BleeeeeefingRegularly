@@ -179,6 +179,8 @@ def weekly_bleeeeeefing() -> None:
     # Slackに投稿
     content = "\n".join(contents)
     post_to_slack(content)
+    # 次週分のページをテンプレートから生成
+    make_weekly_from_template(today)
 
 
 def _make_content(page, layout) -> None:
