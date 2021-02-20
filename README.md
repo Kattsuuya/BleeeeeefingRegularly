@@ -58,11 +58,15 @@ $ poetry install
 ## 3. 実行
 
 ```bash
+# （初回のみ）テンプレートの作成
+$ poetry run template
 # 日次報告の場合
 $ poetry run daily
 # 週次報告の場合
 $ poetry run weekly
 ```
+
+!! テンプレートの作成と週次報告には5分程度かかります
 
 ## 4. 定期的に実行させる設定
 
