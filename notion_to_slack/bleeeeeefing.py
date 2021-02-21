@@ -234,18 +234,62 @@ def _make_daily_template(page) -> None:
     _make_content(page, daily_layout)
 
 
-def _make_weekly_from_template(begin_date: datetime.date, title: str = None) -> None:
+def _make_weekly_from_template(begin_date: datetime.date) -> None:
     """
     1週間分のテンプレートを作成する
     """
     # begin_dateが1月1日なら、end_dateは1月7日
     end_date = begin_date + datetime.timedelta(days=6)
     # "20210101〜20210107"
+    title = f'{begin_date.strftime("%Y%m%d")}〜{end_date.strftime("%Y%m%d")}'
+
+    # Templateページと1週間分のページが入ったコレクションを取得
+    template_page = [child for child in top_page.children if child.title == "Template"][
+        0
+    ]
+    template_collection = [
+        child for child in template_page.children if type(child) is CollectionViewBlock
+    ][0].collection
+
+    # 次週のページを作成
+    next_week_page = top_page.children.add_new(PageBlock, title=title)
+    # 週次報告のテンプレートをコピー
+    for child in template_page.children:
+        next_week_page.children.add_new(type(child), title=child.title)
+    # コレクションブロックを作成
+    cvb = next_week_page.children.add_new(CollectionViewBlock)
+    # コレクションブロックにコレクション本体をアタッチ
+    cvb.collection = notion_client.get_collection(
+        # テンプレートのプロパティを予め決めたいときは[ここ](https://github.com/jamalex/notion-py/blob/master/notion/smoke_test.py#L240)を参考にする
+        notion_client.create_record(
+            "collection",
+            parent=cvb,
+            schema={"title": {"name": "Name", "type": "title"}},
+        )
+    )
+    cvb.title = title
+    # ビューを追加
+    cvb.views.add_new(view_type="list")
+    for i, day_page in enumerate(template_collection.get_rows()):
+        row = cvb.collection.add_row()
+        # タイトルを書く
+        row.name = (begin_date + datetime.timedelta(days=i)).strftime("%Y%m%d")
+        for block in day_page.children:
+            # 日次報告のテンプレートをコピー
+            row.children.add_new(type(block), title=block.title)
+
+
+def make_template() -> None:
+    """
+    1週間分のテンプレートを作成する
+    """
+    # begin_dateが1月1日なら、end_dateは1月7日
+    begin_date = today
+    end_date = begin_date + datetime.timedelta(days=6)
+    # "20210101〜20210107"
     week_title = f'{begin_date.strftime("%Y%m%d")}〜{end_date.strftime("%Y%m%d")}'
     # 空ページを作成
-    template_page = top_page.children.add_new(
-        PageBlock, title=title if title is not None else week_title
-    )
+    template_page = top_page.children.add_new(PageBlock, title="Template")
     # 週次報告のテンプレートを作成
     _make_summary_template(template_page)
     # コレクションブロックを作成
@@ -267,13 +311,6 @@ def _make_weekly_from_template(begin_date: datetime.date, title: str = None) -> 
         row = cvb.collection.add_row()
         row.name = (begin_date + datetime.timedelta(days=i)).strftime("%Y%m%d")
         _make_daily_template(row)
-
-
-def _make_template() -> None:
-    """
-    テンプレートを作成する
-    """
-    _make_weekly_from_template(today, "Template")
 
 
 if __name__ == "__main__":
