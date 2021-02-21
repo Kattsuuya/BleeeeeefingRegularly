@@ -34,7 +34,7 @@ today = datetime.date.today()
 top_page = notion_client.get_block(TOP_PAGE_URL)
 
 
-def str_to_date(date: str) -> datetime.date:
+def _str_to_date(date: str) -> datetime.date:
     """
     例) "20210214" → datetime.date(2021, 2, 14)
     """
@@ -42,7 +42,7 @@ def str_to_date(date: str) -> datetime.date:
     return datetime.date(tdatetime.year, tdatetime.month, tdatetime.day)
 
 
-def title_contains_desired_date(child: PageBlock, target_date: datetime.date) -> bool:
+def _title_contains_desired_date(child: PageBlock, target_date: datetime.date) -> bool:
     """
     child.titleは1週間を表す"20210212〜20210218"のような形式の文字列である。
     target_dateがこの週に含まれていればTrueを返す。
@@ -52,14 +52,14 @@ def title_contains_desired_date(child: PageBlock, target_date: datetime.date) ->
         # "〜"で区切れなければ日付の形式をとったノートでないと判断して終了
         return False
     # タイトルに含まれている日付をdatetime.dateオブジェクトに変換
-    week_begin, week_end = map(str_to_date, splitted_title)
+    week_begin, week_end = map(_str_to_date, splitted_title)
     if week_begin <= target_date <= week_end:
         # 該当する週のブロックである
         return True
     return False
 
 
-def to_pretty(content: list) -> list:
+def _to_pretty(content: list) -> list:
     """
     Slack投稿用に文字列を加工する
     """
@@ -79,19 +79,21 @@ def to_pretty(content: list) -> list:
     return ret
 
 
-def fetch_page_content_by_date(date: datetime.date) -> list:
+def _fetch_page_content_by_date(date: datetime.date) -> list:
     """
     引数で指定した日付のBleeeeeefingページの内容を取得する
     """
     # 今週のサブページを取得
     this_week = [
-        child for child in top_page.children if title_contains_desired_date(child, date)
+        child
+        for child in top_page.children
+        if _title_contains_desired_date(child, date)
     ][0]
     # 日毎のページを集約したコレクションを取得
     this_week_reports = [
         child
         for child in this_week.children
-        if title_contains_desired_date(child, date)
+        if _title_contains_desired_date(child, date)
     ][0]
     # 今日の日付のページを取得
     filter_params = {
@@ -113,17 +115,19 @@ def fetch_page_content_by_date(date: datetime.date) -> list:
     # 本文を抜き出して
     content = [child.title for child in today_report.children]
     # 文字列を加工する
-    content = to_pretty(content)
+    content = _to_pretty(content)
     return content
 
 
-def fetch_weekly_summary_by_date(date: datetime.date) -> list:
+def _fetch_weekly_summary_by_date(date: datetime.date) -> list:
     """
     引数で指定した日付を含んだ週のBleeeeeefingの内容を取得する
     """
     # 今週のサブページを取得
     this_week = [
-        child for child in top_page.children if title_contains_desired_date(child, date)
+        child
+        for child in top_page.children
+        if _title_contains_desired_date(child, date)
     ][0]
     # サマリーが書いてある行だけを抽出
     content = [
@@ -134,7 +138,7 @@ def fetch_weekly_summary_by_date(date: datetime.date) -> list:
     # 先頭の"Summary"という行を削除
     content = [line for line in content if line != "Summary"]
     # 文字列を加工する
-    content = to_pretty(content)
+    content = _to_pretty(content)
     # 先頭に今週の日付を挿入
     content.insert(0, this_week.title)
     return content
@@ -160,7 +164,7 @@ def daily_bleeeeeefing() -> None:
     日次報告
     """
     # 今日のBleeeeeefing内容
-    contents = fetch_page_content_by_date(today)
+    contents = _fetch_page_content_by_date(today)
     # 先頭に今日の日付を挿入
     contents.insert(0, today.strftime("%Y/%m/%d"))
     # Slackに投稿
@@ -175,12 +179,12 @@ def weekly_bleeeeeefing() -> None:
     # 1日前までの1週間の報告なので、昨日の日付を指定
     yesterday = today - datetime.timedelta(days=1)
     # 今週のBleeeeeefing内容
-    contents = fetch_weekly_summary_by_date(yesterday)
+    contents = _fetch_weekly_summary_by_date(yesterday)
     # Slackに投稿
     content = "\n".join(contents)
     post_to_slack(content)
     # 次週分のページをテンプレートから生成
-    make_weekly_from_template(today)
+    _make_weekly_from_template(today)
 
 
 def _make_content(page, layout) -> None:
@@ -230,7 +234,7 @@ def _make_daily_template(page) -> None:
     _make_content(page, daily_layout)
 
 
-def make_weekly_from_template(begin_date: datetime.date, title: str = None) -> None:
+def _make_weekly_from_template(begin_date: datetime.date, title: str = None) -> None:
     """
     1週間分のテンプレートを作成する
     """
@@ -265,11 +269,11 @@ def make_weekly_from_template(begin_date: datetime.date, title: str = None) -> N
         _make_daily_template(row)
 
 
-def make_template() -> None:
+def _make_template() -> None:
     """
     テンプレートを作成する
     """
-    make_weekly_from_template(today, "Template")
+    _make_weekly_from_template(today, "Template")
 
 
 if __name__ == "__main__":
