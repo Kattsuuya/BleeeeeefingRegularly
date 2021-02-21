@@ -64,18 +64,21 @@ def _to_pretty(content: list) -> list:
     Slack投稿用に文字列を加工する
     """
     ret = []
-    for line in content:
-        # FIXME: Blockのクラスによって条件分岐する
-        # SubheaderBlockとかBulletedListとか
-        if line == "Done":
-            # 見出し語はアスタリスクで囲う（Slackのボールド体はアスタリスク1つ）
-            ret.append(f"*{line}*")
-        elif line in ["TODO", "Doing", "Problems"]:
-            # 同様に（2つ目以降の見出し語の前には改行を入れる）
-            ret.append(f"\n*{line}*")
+    for block in content:
+        if type(block) is SubheaderBlock:
+            # Header 2 → ボールド体
+            ret.append(f"\n*{block.title}*")
+        elif type(block) is SubsubheaderBlock:
+            # Header 3 → ボールド体
+            ret.append(f"\n*{block.title}*")
+        elif type(block) is BulletedListBlock:
+            # List → ・hoge
+            ret.append(f"・{block.title}")
         else:
-            # それ以外はリストの要素とする
-            ret.append(f"・{line}")
+            # その他 → 本文そのまま
+            ret.append(block.title)
+    # 先頭行の改行を消す（ここで1つだけ消すほうが効率が良いと思った）
+    ret[0] = ret[0].replace("\n", "")
     return ret
 
 
@@ -112,11 +115,11 @@ def _fetch_page_content_by_date(date: datetime.date) -> list:
         "operator": "and",
     }
     today_report = this_week_reports.collection.query(filter=filter_params)[0]
-    # 本文を抜き出して
-    content = [child.title for child in today_report.children]
-    # 文字列を加工する
-    content = _to_pretty(content)
-    return content
+    # 文字列をSlack投稿用に加工する
+    contents = _to_pretty(today_report.children)
+    # 先頭に今日の日付を挿入
+    contents.insert(0, today.strftime("%Y/%m/%d"))
+    return contents
 
 
 def _fetch_weekly_summary_by_date(date: datetime.date) -> list:
@@ -130,18 +133,17 @@ def _fetch_weekly_summary_by_date(date: datetime.date) -> list:
         if _title_contains_desired_date(child, date)
     ][0]
     # サマリーが書いてある行だけを抽出
-    content = [
-        child.title
+    contents = [
+        child
         for child in this_week.children
         if type(child) not in [TextBlock, CollectionViewBlock]
+        and child.title != "Summary"
     ]
-    # 先頭の"Summary"という行を削除
-    content = [line for line in content if line != "Summary"]
-    # 文字列を加工する
-    content = _to_pretty(content)
+    # 文字列をSlack投稿用に加工する
+    contents = _to_pretty(contents)
     # 先頭に今週の日付を挿入
-    content.insert(0, this_week.title)
-    return content
+    contents.insert(0, this_week.title)
+    return contents
 
 
 def post_to_slack(content: str) -> None:
@@ -165,8 +167,6 @@ def daily_bleeeeeefing() -> None:
     """
     # 今日のBleeeeeefing内容
     contents = _fetch_page_content_by_date(today)
-    # 先頭に今日の日付を挿入
-    contents.insert(0, today.strftime("%Y/%m/%d"))
     # Slackに投稿
     content = "\n".join(contents)
     post_to_slack(content)
