@@ -87,5 +87,9 @@ POETRY=/path/to/poetry  # Try `which poetry`
 
 ### Windowsの場合
 
-未検証です。
-タスクスケジューラで実現できると思います。
+タスクスケジューラの「タスクの作成」から「操作」を指定
+- プログラム/スクリプト → `/path/to/poetry`
+- 引数の追加 → `poetry run daily (or weekly)`
+- 開始 → `/path/to/BleeeeeefingRegularly`
+
+「トリガー」に任意の時間を指定することで定期実行できます。
