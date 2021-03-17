@@ -34,13 +34,13 @@ jobs:
         uses: abatilo/actions-poetry@v2.0.0
         with:
           poetry-version: 1.1.2
-      
+
       - name: install depedencies
         run: poetry install
-        
+
       - name: daily-bleeeeeefing
         run:
-          poetry run python notion_to_slack/bleeeeeefing.py
+          poetry run daily
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
