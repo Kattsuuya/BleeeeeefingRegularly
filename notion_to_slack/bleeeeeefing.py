@@ -50,7 +50,11 @@ def _title_contains_desired_date(child: PageBlock, target_date: datetime.date) -
     child.titleは1週間を表す"20210212〜20210218"のような形式の文字列である。
     target_dateがこの週に含まれていればTrueを返す。
     """
-    splitted_title = child.title.split("〜")
+    try:
+        # "name"がないと怒られる時があるので例外処理
+        splitted_title = child.title.split("〜")
+    except AttributeError:
+        return False
     if len(splitted_title) != 2:
         # "〜"で区切れなければ日付の形式をとったノートでないと判断して終了
         return False
@@ -317,4 +321,9 @@ def make_template() -> None:
 
 
 if __name__ == "__main__":
-    ...
+    # 今日のBleeeeeefing内容
+    today = datetime.date(2021, 3, 5)
+    contents = _fetch_page_content_by_date(today)
+    # Slackに投稿
+    content = "\n".join(contents)
+    post_to_slack(content)
