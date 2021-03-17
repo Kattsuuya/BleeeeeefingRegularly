@@ -24,6 +24,7 @@ if os.path.exists(dotenv_path):
 SLACK_TOKEN = os.environ.get("OAuth_Access_Token")
 NOTION_TOKEN = os.environ.get("token_v2")
 TOP_PAGE_URL = os.environ.get("top_page")
+raise ValueError(f"NOTION_TOKEN: {NOTION_TOKEN}")
 
 # 各種サービスに接続するインスタンス
 slack_client = WebClient(token=SLACK_TOKEN)
@@ -322,8 +323,8 @@ def make_template() -> None:
 
 if __name__ == "__main__":
     # 今日のBleeeeeefing内容
-    today = datetime.date(2021, 3, 5)
+    today = datetime.date(2021, 3, 16)
     contents = _fetch_page_content_by_date(today)
     # Slackに投稿
     content = "\n".join(contents)
-    post_to_slack(content)
+    ic(content)
