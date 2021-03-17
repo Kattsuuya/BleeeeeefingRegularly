@@ -4,23 +4,13 @@
 
 Notionに書いた日次・週次BleeeeeefingをSlackに自動で投稿してくれるスクリプトです。
 
-1. [インストール](#1-インストール)
+1. [レポジトリのフォーク](#1-レポジトリのフォーク)
 2. [トークンなどの情報を取得](#2-トークンなどの情報を取得)
 3. [実行](#3-実行)
-4. [定期的に実行させる設定](#4-定期的に実行させる設定)
 
-## 想定環境
+## 1. レポジトリのフォーク
 
-- Python 3.8+
-- Poetry 1.1.4+
-
-## 1. インストール
-
-```bash
-$ git clone https://github.com/KindMaple/BleeeeeefingRegularly.git
-$ cd BleeeeeefingRegularly
-$ poetry install
-```
+本ページの右上の`Fork`ボタンを押して、レポジトリをフォークしてください。
 
 ## 2. トークンなどの情報を取得
 
@@ -29,6 +19,10 @@ $ poetry install
 - Slack APIのOAuth Access Token
 - NotionのToken
 - Bleeeeeefing内容が書いてあるNotionページのURL
+
+取得した情報はフォークしたレポジトリのRepository secretsに追加します。
+
+本ページ上部の`Settings`→`Secrets`→`New repository secret`ボタンから追加することができます。
 
 ### Slack API
 
@@ -39,7 +33,7 @@ $ poetry install
 5. ページトップの`Install to Workspace`をクリック
 6. `許可する`をクリック
 7. OAuth Access Tokenが表示されるのでコピー（"xoxp-"で始める文字列になっていることを確認してください。）
-8. .envファイルに書き込む
+8. `SLACK_TOKEN`という名前でsecretsに追加する
 
 ### Notion Token
 
@@ -50,46 +44,29 @@ $ poetry install
 1. ブラウザ版Notionを開く
 2. 右クリック→`検証`→`Application`→`Storage`→`Cookies`→`https://www.notion.so`→`token_v2`の値をコピー
 3. .envファイルに書き込む
+4. `NOTION_TOKEN`という名前でsecretsに追加する
 
-#### BleeeeeefingトップページのURL
+### BleeeeeefingトップページのURL
 
-ブラウザ上で開いたときのURLをそのままコピーして.envファイルに書き込みます。
+1. ブラウザ上で開いたときのURLをコピーする
+2. `TOP_PAGE_URL`という名前でsecretsに追加する
 
 ## 3. 実行
 
-```bash
-# （初回のみ）テンプレートの作成
-$ poetry run template
-# 日次報告の場合
-$ poetry run daily
-# 週次報告の場合
-$ poetry run weekly
-```
+### 日次報告
 
-!! テンプレートの作成と週次報告には5分程度かかります
+本ページ上部の`Actions`→`daily bleeeeeefing`→`Run workflow`で実行します。
+初回はボタンを押した直後に1回実行されますが、以降は`.github/workflows/daily_cron.yml`に書いたルールに従って定期的に実行されます。
 
-## 4. 定期的に実行させる設定
+### 週次報告
 
-### Linuxの場合
+本ページ上部の`Actions`→`weekly bleeeeeefing`→`Run workflow`で実行します。
+初回はボタンを押した直後に1回実行されますが、以降は`.github/workflows/weekly_cron.yml`に書いたルールに従って定期的に実行されます。
 
-```bash
-$ crontab -e
-$ crontab -l
-PJ_ROOT=/path/to/BleeeeeefingRegularly
-POETRY=/path/to/poetry  # Try `which poetry`
+週次報告をSlackに投稿した後、次週のNotionページが自動生成されます。
 
-# Bleeeeeefing
-# 日次報告
-59 23 * * * cd $PJ_ROOT && $POETRY run daily
-# 週次報告
-00 11 * * 5 cd $PJ_ROOT && $POETRY run weekly
-```
+### （初回のみ）テンプレート作成
 
-### Windowsの場合
+本ページ上部の`Actions`→`make template`→`Run workflow`で実行します。
 
-タスクスケジューラの「タスクの作成」から「操作」を指定
-- プログラム/スクリプト → `/path/to/poetry`
-- 引数の追加 → `poetry run daily (or weekly)`
-- 開始 → `/path/to/BleeeeeefingRegularly`
-
-「トリガー」に任意の時間を指定することで定期実行できます。
+**テンプレートの作成と週次報告には5分程度かかります。予めご了承ください。**
