@@ -21,9 +21,9 @@ dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
 if os.path.exists(dotenv_path):
     # .envがあるときはそっちを読み込む
     load_dotenv(dotenv_path)
-SLACK_TOKEN = os.environ.get("OAuth_Access_Token")
-NOTION_TOKEN = os.environ.get("token_v2")
-TOP_PAGE_URL = os.environ.get("top_page")
+SLACK_TOKEN = os.environ.get("SLACK_TOKEN")
+NOTION_TOKEN = os.environ.get("NOTION_TOKEN")
+TOP_PAGE_URL = os.environ.get("TOP_PAGE_URL")
 raise ValueError(f"NOTION_TOKEN: {NOTION_TOKEN}")
 
 # 各種サービスに接続するインスタンス
