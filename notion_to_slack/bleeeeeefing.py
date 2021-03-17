@@ -327,4 +327,4 @@ if __name__ == "__main__":
     contents = _fetch_page_content_by_date(today)
     # Slackに投稿
     content = "\n".join(contents)
-    ic(content)
+    post_to_slack(content)
