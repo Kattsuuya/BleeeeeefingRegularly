@@ -70,3 +70,8 @@ Notionに書いた日次・週次BleeeeeefingをSlackに自動で投稿してく
 本ページ上部の`Actions`→`make template`→`Run workflow`で実行します。
 
 **テンプレートの作成と週次報告には5分程度かかります。予めご了承ください。**
+
+## 実行する時刻を変更したいとき
+
+日次報告なら`.github/workflows/daily_cron.yml`の、週次報告なら`.github/workflows/weekly_cron.yml`の`cron:`と書かれている箇所を変更します。
+詳しくは"cron 設定"などで調べてください。
