@@ -40,8 +40,8 @@ jobs:
         
       - name: daily-bleeeeeefing
         run:
-          poetry run daily
+          poetry run python notion_to_slack/bleeeeeefing.py
         env:
-          SLACK_TOKEN: ${{ secrets.OAuth_Access_Token }}
-          NOTION_TOKEN: ${{ secrets.token_v2 }}
-          TOP_PAGE_URL: ${{ secrets.top_page }}
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          TOP_PAGE_URL: ${{ secrets.TOP_PAGE_URL }}
