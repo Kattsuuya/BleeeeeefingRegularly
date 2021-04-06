@@ -20,6 +20,7 @@ isort = "^5.7.0"
 [tool.poetry.scripts]
 daily = "notion_to_slack:daily_bleeeeeefing"
 weekly = "notion_to_slack:weekly_bleeeeeefing"
+copy_from_template = "notion_to_slack:copy_from_template"
 template = "notion_to_slack:make_template"
 
 [build-system]

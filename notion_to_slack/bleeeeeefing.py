@@ -190,8 +190,6 @@ def weekly_bleeeeeefing() -> None:
     # Slackに投稿
     content = "\n".join(contents)
     post_to_slack(content)
-    # 次週分のページをテンプレートから生成
-    _make_weekly_from_template(today)
 
 
 def _make_content(page, layout) -> None:
@@ -241,11 +239,12 @@ def _make_daily_template(page) -> None:
     _make_content(page, daily_layout)
 
 
-def _make_weekly_from_template(begin_date: datetime.date) -> None:
+def copy_weekly_template() -> None:
     """
-    1週間分のテンプレートを作成する
+    テンプレートをもとに1週間分のページを作成する
     """
     # begin_dateが1月1日なら、end_dateは1月7日
+    begin_date = today
     end_date = begin_date + datetime.timedelta(days=6)
     # "20210101〜20210107"
     title = f'{begin_date.strftime("%Y%m%d")}〜{end_date.strftime("%Y%m%d")}'
