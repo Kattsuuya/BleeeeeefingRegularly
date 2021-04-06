@@ -63,7 +63,10 @@ Notionに書いた日次・週次BleeeeeefingをSlackに自動で投稿してく
 本ページ上部の`Actions`→`weekly bleeeeeefing`→`Run workflow`で実行します。
 初回はボタンを押した直後に1回実行されますが、以降は`.github/workflows/weekly_cron.yml`に書いたルールに従って定期的に実行されます。
 
-週次報告をSlackに投稿した後、次週のNotionページが自動生成されます。
+### 1週間分のBleeeeeefingページをテンプレートから自動作成
+
+本ページ上部の`Actions`→`copy from template`→`Run workflow`で実行します。
+初回はボタンを押した直後に1回実行されますが、以降は`.github/workflows/copy_from_template.yml`に書いたルールに従って定期的に実行されます。
 
 ### （初回のみ）テンプレート作成
 
