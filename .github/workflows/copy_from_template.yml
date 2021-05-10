@@ -7,7 +7,7 @@ on:
   # Triggers the workflow on push or pull request events but only for the main branch
   schedule:
     # '分 時 日 月 曜日'の指定．　UTC基準なのでJST-9時間
-    - cron: '0 15１ * * 1'
+    - cron: '0 15 * * 1'
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
   push:
